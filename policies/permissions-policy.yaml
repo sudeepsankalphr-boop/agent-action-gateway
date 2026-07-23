@@ -1,6 +1,24 @@
 name: permissions-policy
-version: "1.0.0"
+version: "1.1.0"
 rules:
+  - id: reject-destructive-sql
+    condition:
+      action_type: execute_query
+      param_contains_word:
+        param: sql
+        words: [DROP, TRUNCATE, ALTER]
+    decision: REJECTED
+    reason: "SQL contains a schema-destructive keyword (DROP/TRUNCATE/ALTER); execution is not permitted"
+
+  - id: review-delete-sql
+    condition:
+      action_type: execute_query
+      param_contains_word:
+        param: sql
+        words: [DELETE]
+    decision: NEEDS_APPROVAL
+    reason: "SQL contains DELETE; human approval required before execution"
+
   - id: review-destructive-action
     condition:
       action_type_in:
@@ -20,5 +38,6 @@ rules:
         - delete_campaign
         - delete_account
         - bulk_delete
+        - execute_query
     decision: REJECTED
     reason: "Action type is not in the list of permitted operations"

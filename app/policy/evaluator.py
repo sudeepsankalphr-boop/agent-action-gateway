@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from app.models.action import ActionRequest
@@ -37,6 +38,13 @@ def _matches(action: ActionRequest, condition: dict[str, Any]) -> bool:
         if op_fn is None:
             return False
         if not op_fn(param_val, condition["value"]):
+            return False
+
+    if "param_contains_word" in condition:
+        spec = condition["param_contains_word"]
+        param_val = str(action.params.get(spec["param"], "")).upper()
+        words = [w.upper() for w in spec.get("words", [])]
+        if not any(re.search(rf'\b{word}\b', param_val) for word in words):
             return False
 
     return True
