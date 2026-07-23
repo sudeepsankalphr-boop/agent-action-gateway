@@ -1,0 +1,24 @@
+name: permissions-policy
+version: "1.0.0"
+rules:
+  - id: review-destructive-action
+    condition:
+      action_type_in:
+        - delete_campaign
+        - delete_account
+        - bulk_delete
+    decision: NEEDS_APPROVAL
+    reason: "Destructive operations require human approval before execution"
+
+  - id: reject-unknown-action
+    condition:
+      action_type_not_in:
+        - send_email
+        - set_budget
+        - create_campaign
+        - update_campaign
+        - delete_campaign
+        - delete_account
+        - bulk_delete
+    decision: REJECTED
+    reason: "Action type is not in the list of permitted operations"
