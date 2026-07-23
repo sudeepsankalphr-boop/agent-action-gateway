@@ -73,6 +73,23 @@ rules:
 Supported decisions: `APPROVED`, `NEEDS_APPROVAL`, `REJECTED`.  
 The engine takes the most severe verdict across all matching rules.
 
+## Integration: HyperMindZ NL-to-SQL
+
+This gateway is live-integrated with [HyperMindZ](https://github.com/sudeepsankalphr-boop/Hyper-Mindz-Solution), an NL-to-SQL query service. Before every AI-generated SQL query is executed against user data, HyperMindZ submits it to this gateway for policy evaluation. Queries containing destructive keywords are blocked before they reach the database.
+
+Request shape sent from HyperMindZ (`backend/gateway.py`):
+
+```json
+{
+  "agent_id": "hypermindz-nl-sql",
+  "action_type": "execute_query",
+  "target": "data",
+  "params": { "sql": "SELECT category, SUM(revenue) FROM data GROUP BY category" }
+}
+```
+
+`APPROVED` → query executes. `REJECTED` / `NEEDS_APPROVAL` → 403 returned to the user with the policy reason and correlation_id. If the gateway is unreachable, queries are blocked (fail-closed).
+
 ## Running tests
 
 ```bash
